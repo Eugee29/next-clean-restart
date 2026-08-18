@@ -3,7 +3,16 @@
   "displayName": "Next.js Clean Restart",
   "description": "One-click status bar button to stop Next.js, purge .next build cache, and restart a fresh dev server.",
   "version": "1.0.0",
-  "publisher": "next-tools",
+  "publisher": "Eugee29",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Eugee29/next-clean-restart"
+  },
+  "bugs": {
+    "url": "https://github.com/Eugee29/next-clean-restart/issues"
+  },
+  "homepage": "https://github.com/Eugee29/next-clean-restart#readme",
   "keywords": [
     "next.js",
     "nextjs",
