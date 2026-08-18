@@ -98,11 +98,10 @@ export async function stopDevServer(
   }
 
   try {
-    // Send SIGINT / Ctrl+C
+    // Send SIGINT / Ctrl+C to terminate running dev server cleanly
     targetTerminal.sendText('\x03', false);
-    await delay(300);
-    // Respond to Windows batch termination prompts if any
-    targetTerminal.sendText('y', true);
+    await delay(200);
+    targetTerminal.sendText('\x03', false);
     await delay(300);
 
     if (!reuseTerminal) {
