@@ -8,62 +8,32 @@ It provides a Status Bar action button and a dedicated Sidebar tab to gracefully
 
 ## Installation
 
-### Method 1: Install from GitHub Release (.vsix)
-
 1. Download the latest `.vsix` package from [GitHub Releases](https://github.com/Eugee29/next-clean-restart/releases/latest).
-2. Install the extension using any of the following approaches:
+2. Install the extension using any of the following methods:
 
-#### Option A: Via VS Code Extensions View
+### Option A: Via VS Code Extensions View
 1. Open VS Code.
-2. Go to the **Extensions** view (<kbd>Ctrl+Shift+X</kbd> or <kbd>Cmd+Shift+X</kbd>).
+2. Go to the **Extensions** view (<kbd>Ctrl+Shift+X</kbd> / <kbd>Cmd+Shift+X</kbd>).
 3. Click the **`...`** (Views and More Actions) menu in the top-right corner of the Extensions panel.
 4. Select **Install from VSIX...**.
 5. Choose the downloaded `next-clean-restart-1.2.0.vsix` file.
 
-#### Option B: Via Command Palette
-1. Open the Command Palette (<kbd>Ctrl+Shift+P</kbd> or <kbd>Cmd+Shift+P</kbd>).
+### Option B: Via Command Palette
+1. Open the Command Palette (<kbd>Ctrl+Shift+P</kbd> / <kbd>Cmd+Shift+P</kbd>).
 2. Type and select `Extensions: Install from VSIX...`.
 3. Choose the downloaded `.vsix` file.
 
-#### Option C: Via Terminal / Command Line
+### Option C: Via Terminal / Command Line
 ```bash
 code --install-extension next-clean-restart-1.2.0.vsix
 ```
 
-> **For Cursor or VSCodium users:**
+> **For Cursor or VSCodium:**
 > ```bash
 > cursor --install-extension next-clean-restart-1.2.0.vsix
 > # or
 > codium --install-extension next-clean-restart-1.2.0.vsix
 > ```
-
----
-
-### Method 2: Install from Visual Studio Marketplace
-
-1. Open VS Code.
-2. Press <kbd>Ctrl+Shift+X</kbd> (<kbd>Cmd+Shift+X</kbd> on macOS) to open the Extensions tab.
-3. Search for **"Next.js Clean Restart"**.
-4. Click **Install**.
-
----
-
-### Method 3: Install from Source
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Eugee29/next-clean-restart.git
-cd next-clean-restart
-
-# 2. Install dependencies
-npm install
-
-# 3. Package the extension into a .vsix file
-npx @vscode/vsce package
-
-# 4. Install locally
-code --install-extension next-clean-restart-1.2.0.vsix
-```
 
 ---
 
