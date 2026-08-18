@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { NextProjectInfo, ExtensionConfig } from './types';
+import { getActiveOrRunningTerminalName } from './cleanRestart';
 
 export enum SidebarItemType {
   Category,
@@ -11,6 +12,8 @@ export enum SidebarItemType {
   SettingToggle,
   SettingEdit,
   OpenSettings,
+  ConfigureKeybinding,
+  SelectTerminal,
   InfoMessage,
 }
 
@@ -92,6 +95,8 @@ export class NextCleanRestartTreeDataProvider implements vscode.TreeDataProvider
   }
 
   private getQuickActionsCategory(): SidebarItem {
+    const targetTerminalDisplay = getActiveOrRunningTerminalName(this.config.terminalName);
+
     return {
       id: 'category-quick-actions',
       label: 'Quick Actions',
@@ -135,8 +140,8 @@ export class NextCleanRestartTreeDataProvider implements vscode.TreeDataProvider
         {
           id: 'action-focus-terminal',
           label: 'Focus Dev Terminal',
-          description: this.config.terminalName,
-          tooltip: 'Bring the running Next.js integrated terminal into focus',
+          description: targetTerminalDisplay,
+          tooltip: 'Bring the active or dedicated Next.js integrated terminal into focus',
           icon: 'terminal',
           type: SidebarItemType.Action,
           command: {
@@ -231,12 +236,38 @@ export class NextCleanRestartTreeDataProvider implements vscode.TreeDataProvider
   }
 
   private getSettingsCategory(): SidebarItem {
+    const terminalDisplay = getActiveOrRunningTerminalName(this.config.terminalName);
+
     return {
       id: 'category-settings',
       label: 'Configuration & Settings',
       type: SidebarItemType.Category,
       icon: 'settings-gear',
       children: [
+        {
+          id: 'setting-keybindings',
+          label: 'Keyboard Shortcut',
+          description: 'Ctrl+Alt+N (Cmd+Alt+N)',
+          tooltip: 'Click to edit or reassign keyboard shortcuts for Next.js Clean Restart in VS Code.',
+          icon: 'keyboard',
+          type: SidebarItemType.ConfigureKeybinding,
+          command: {
+            command: 'nextCleanRestart.configureKeybinding',
+            title: 'Configure Keyboard Shortcuts',
+          },
+        },
+        {
+          id: 'setting-terminal-name',
+          label: 'Target Terminal',
+          description: terminalDisplay,
+          tooltip: 'Click to select an active terminal or customize the target terminal name.',
+          icon: 'terminal',
+          type: SidebarItemType.SelectTerminal,
+          command: {
+            command: 'nextCleanRestart.selectActiveTerminal',
+            title: 'Select Target Terminal',
+          },
+        },
         {
           id: 'setting-reuse-terminal',
           label: 'Reuse Running Terminal',
@@ -257,7 +288,7 @@ export class NextCleanRestartTreeDataProvider implements vscode.TreeDataProvider
           label: 'Dev Command',
           description: this.config.devCommand,
           tooltip: 'Click to edit: Custom command or "auto" to detect based on package manager.',
-          icon: 'terminal',
+          icon: 'tools',
           type: SidebarItemType.SettingEdit,
           settingKey: 'devCommand',
           settingType: 'string',
@@ -280,21 +311,6 @@ export class NextCleanRestartTreeDataProvider implements vscode.TreeDataProvider
             command: 'nextCleanRestart.toggleSetting',
             title: 'Toggle Confirmation Prompt',
             arguments: ['showConfirmation', !this.config.showConfirmation],
-          },
-        },
-        {
-          id: 'setting-terminal-name',
-          label: 'Terminal Name',
-          description: this.config.terminalName,
-          tooltip: 'Click to edit: Name of the dedicated integrated terminal.',
-          icon: 'tag',
-          type: SidebarItemType.SettingEdit,
-          settingKey: 'terminalName',
-          settingType: 'string',
-          command: {
-            command: 'nextCleanRestart.editSetting',
-            title: 'Edit Terminal Name',
-            arguments: ['terminalName', 'Integrated Terminal Name', this.config.terminalName],
           },
         },
         {

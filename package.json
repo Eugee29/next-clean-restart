@@ -1,8 +1,8 @@
 {
   "name": "next-clean-restart",
   "displayName": "Next.js Clean Restart",
-  "description": "One-click button and sidebar tab to stop Next.js, purge .next build cache, and restart a fresh dev server in the same terminal.",
-  "version": "1.1.0",
+  "description": "One-click button and sidebar tab to stop Next.js, purge .next build cache, and restart a fresh dev server in the active terminal.",
+  "version": "1.2.0",
   "publisher": "Eugee29",
   "license": "MIT",
   "repository": {
@@ -87,6 +87,18 @@
         "icon": "$(terminal)"
       },
       {
+        "command": "nextCleanRestart.configureKeybinding",
+        "title": "Next.js: Configure Keyboard Shortcuts",
+        "category": "Next.js",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "nextCleanRestart.selectActiveTerminal",
+        "title": "Next.js: Select Target Terminal",
+        "category": "Next.js",
+        "icon": "$(terminal)"
+      },
+      {
         "command": "nextCleanRestart.refreshSidebar",
         "title": "Refresh Next.js Projects & Settings",
         "category": "Next.js",
@@ -114,6 +126,12 @@
         },
         {
           "command": "nextCleanRestart.focusTerminal"
+        },
+        {
+          "command": "nextCleanRestart.configureKeybinding"
+        },
+        {
+          "command": "nextCleanRestart.selectActiveTerminal"
         }
       ],
       "view/title": [
@@ -139,6 +157,11 @@
     "configuration": {
       "title": "Next.js Clean Restart",
       "properties": {
+        "nextCleanRestart.terminalName": {
+          "type": "string",
+          "default": "auto",
+          "description": "Name of the target integrated terminal, or 'auto' to automatically detect the currently active terminal or running Next.js process."
+        },
         "nextCleanRestart.reuseTerminal": {
           "type": "boolean",
           "default": true,
@@ -153,11 +176,6 @@
           "type": "boolean",
           "default": false,
           "description": "Prompt for confirmation before clearing the .next cache and restarting."
-        },
-        "nextCleanRestart.terminalName": {
-          "type": "string",
-          "default": "Next.js Dev Server",
-          "description": "Name of the dedicated integrated terminal used for running the Next.js dev server."
         },
         "nextCleanRestart.showStatusBarItem": {
           "type": "boolean",

@@ -11,17 +11,71 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
- * Finds any existing Next.js terminal matching the terminalName.
+ * Resolves the target dev server terminal based on configuration and active terminals.
+ * If terminalName is 'auto', it prioritizes the currently active terminal or any Next.js dev terminal.
  */
-export function findDevTerminal(terminalName: string): vscode.Terminal | undefined {
-  return vscode.window.terminals.find((t) => t.name === terminalName);
+export function resolveTargetTerminal(terminalNameSetting: string): vscode.Terminal | undefined {
+  const terminals = vscode.window.terminals;
+  if (terminals.length === 0) {
+    return undefined;
+  }
+
+  const isAuto = !terminalNameSetting || terminalNameSetting.trim() === '' || terminalNameSetting.toLowerCase() === 'auto';
+
+  if (!isAuto) {
+    // Exact match for custom configured terminal name
+    const exactMatch = terminals.find(
+      (t) => t.name.toLowerCase() === terminalNameSetting.trim().toLowerCase()
+    );
+    if (exactMatch) {
+      return exactMatch;
+    }
+  }
+
+  // Auto-detection logic:
+  // 1. Check if active terminal is available
+  if (vscode.window.activeTerminal) {
+    return vscode.window.activeTerminal;
+  }
+
+  // 2. Check for terminal with Next.js related name
+  const nextTerminal = terminals.find((t) => {
+    const name = t.name.toLowerCase();
+    return name.includes('next') || name.includes('dev') || name.includes('server');
+  });
+  if (nextTerminal) {
+    return nextTerminal;
+  }
+
+  // 3. Fallback to the most recent terminal
+  return terminals[terminals.length - 1];
 }
 
 /**
- * Focuses the existing dev terminal if open.
+ * Returns a human-readable description of the resolved target terminal for UI display.
  */
-export function focusDevTerminal(terminalName: string): boolean {
-  const terminal = findDevTerminal(terminalName);
+export function getActiveOrRunningTerminalName(terminalNameSetting: string): string {
+  const isAuto = !terminalNameSetting || terminalNameSetting.trim() === '' || terminalNameSetting.toLowerCase() === 'auto';
+  const targetTerminal = resolveTargetTerminal(terminalNameSetting);
+
+  if (isAuto) {
+    if (targetTerminal) {
+      return `auto (Active: ${targetTerminal.name})`;
+    }
+    return 'auto (No active terminal)';
+  }
+
+  if (targetTerminal) {
+    return `${terminalNameSetting} (Open)`;
+  }
+  return `${terminalNameSetting} (Not running)`;
+}
+
+/**
+ * Focuses the existing dev terminal if available.
+ */
+export function focusDevTerminal(terminalNameSetting: string): boolean {
+  const terminal = resolveTargetTerminal(terminalNameSetting);
   if (terminal) {
     terminal.show(false);
     return true;
@@ -30,42 +84,40 @@ export function focusDevTerminal(terminalName: string): boolean {
 }
 
 /**
- * Stops any existing Next.js terminal matching the terminalName.
+ * Stops any running process in the target dev server terminal.
  * If reuseTerminal is true, it interrupts the process via SIGINT without destroying the terminal.
  */
 export async function stopDevServer(
-  terminalName: string,
+  terminalNameSetting: string,
   reuseTerminal = true
 ): Promise<vscode.Terminal | undefined> {
-  const matchingTerminals = vscode.window.terminals.filter((t) => t.name === terminalName);
+  const targetTerminal = resolveTargetTerminal(terminalNameSetting);
 
-  if (matchingTerminals.length === 0) {
+  if (!targetTerminal) {
     return undefined;
   }
 
-  const primaryTerminal = matchingTerminals[0];
+  try {
+    // Send SIGINT / Ctrl+C
+    targetTerminal.sendText('\x03', false);
+    await delay(300);
+    // Respond to Windows batch termination prompts if any
+    targetTerminal.sendText('y', true);
+    await delay(300);
 
-  for (const terminal of matchingTerminals) {
-    try {
-      // Send SIGINT / Ctrl+C
-      terminal.sendText('\x03', false);
-      await delay(300);
-      // On Windows PowerShell/cmd, sending a newline or 'Y' responds to batch prompts if needed
-      terminal.sendText('y', true);
-      await delay(300);
-
-      if (!reuseTerminal) {
-        terminal.dispose();
-      }
-    } catch {
-      // If error occurs, continue
+    if (!reuseTerminal) {
+      targetTerminal.dispose();
+      await delay(400);
+      return undefined;
     }
+  } catch {
+    // If error occurs, continue
   }
 
   // Grace period for OS to release file locks on Windows
   await delay(500);
 
-  return reuseTerminal ? primaryTerminal : undefined;
+  return targetTerminal;
 }
 
 /**
@@ -125,11 +177,11 @@ export async function deleteNextCache(
 
 /**
  * Starts or restarts a Next.js development server in an integrated terminal.
- * Reuses the existing terminal if available and reuseTerminal is true.
+ * Reuses the existing target terminal if available and reuseTerminal is true.
  */
 export async function startDevServer(
   project: NextProjectInfo,
-  terminalName: string,
+  terminalNameSetting: string,
   devCommand: string,
   focusTerminal = false,
   reuseTerminal = true
@@ -137,7 +189,7 @@ export async function startDevServer(
   let terminal: vscode.Terminal | undefined;
 
   if (reuseTerminal) {
-    terminal = findDevTerminal(terminalName);
+    terminal = resolveTargetTerminal(terminalNameSetting);
   }
 
   if (terminal) {
@@ -147,8 +199,11 @@ export async function startDevServer(
     terminal.sendText(devCommand, true);
   } else {
     // Create a new dedicated terminal in the project directory
+    const isAuto = !terminalNameSetting || terminalNameSetting.toLowerCase() === 'auto';
+    const newName = isAuto ? 'Next.js Dev Server' : terminalNameSetting;
+
     terminal = vscode.window.createTerminal({
-      name: terminalName,
+      name: newName,
       cwd: project.uri.fsPath,
       message: `Next.js Dev Server: ${devCommand}`,
     });

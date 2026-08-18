@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ExtensionConfig, ExecutionMode, NextProjectInfo } from './types';
 import { findAllNextProjects, resolveTargetProject } from './detector';
-import { executeCleanRestart, focusDevTerminal } from './cleanRestart';
+import { executeCleanRestart, focusDevTerminal, getActiveOrRunningTerminalName } from './cleanRestart';
 import { StatusBarController } from './statusBar';
 import { NextCleanRestartTreeDataProvider } from './sidebarProvider';
 
@@ -18,7 +18,7 @@ function getExtensionConfig(): ExtensionConfig {
   return {
     devCommand: config.get<string>('devCommand', 'auto'),
     showConfirmation: config.get<boolean>('showConfirmation', false),
-    terminalName: config.get<string>('terminalName', 'Next.js Dev Server'),
+    terminalName: config.get<string>('terminalName', 'auto'),
     showStatusBarItem: config.get<boolean>('showStatusBarItem', true),
     cacheDirectory: config.get<string>('cacheDirectory', '.next'),
     retryAttempts: config.get<number>('retryAttempts', 5),
@@ -143,8 +143,73 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       const focused = focusDevTerminal(config.terminalName);
       if (!focused) {
         vscode.window.showInformationMessage(
-          `No running terminal found named "${config.terminalName}".`
+          `No running terminal found (${getActiveOrRunningTerminalName(config.terminalName)}).`
         );
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('nextCleanRestart.configureKeybinding', () => {
+      vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', 'nextCleanRestart');
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('nextCleanRestart.selectActiveTerminal', async () => {
+      const currentConfig = getExtensionConfig();
+      const openTerminals = vscode.window.terminals;
+
+      const items: Array<{ label: string; description?: string; detail?: string; value: string }> = [
+        {
+          label: '$(sparkle) Auto-detect active terminal',
+          description: currentConfig.terminalName === 'auto' ? '(Current)' : undefined,
+          detail: 'Automatically target the currently focused or active terminal window',
+          value: 'auto',
+        },
+      ];
+
+      // Add currently open terminals
+      for (const t of openTerminals) {
+        const isCurrentActive = vscode.window.activeTerminal === t;
+        items.push({
+          label: `$(terminal) ${t.name}`,
+          description: isCurrentActive ? '(Active)' : undefined,
+          detail: `Target this specific open terminal`,
+          value: t.name,
+        });
+      }
+
+      items.push({
+        label: '$(edit) Custom terminal name...',
+        detail: 'Specify a custom terminal name string',
+        value: '__CUSTOM__',
+      });
+
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Select target terminal strategy for Next.js Clean Restart',
+        title: 'Target Terminal Selection',
+      });
+
+      if (!selected) {
+        return;
+      }
+
+      const config = vscode.workspace.getConfiguration('nextCleanRestart');
+
+      if (selected.value === '__CUSTOM__') {
+        const customName = await vscode.window.showInputBox({
+          prompt: 'Enter custom terminal name to target',
+          value: currentConfig.terminalName === 'auto' ? 'Next.js Dev Server' : currentConfig.terminalName,
+        });
+
+        if (customName !== undefined && customName.trim() !== '') {
+          await config.update('terminalName', customName.trim(), vscode.ConfigurationTarget.Global);
+          await refreshWorkspaceProjects();
+        }
+      } else {
+        await config.update('terminalName', selected.value, vscode.ConfigurationTarget.Global);
+        await refreshWorkspaceProjects();
       }
     })
   );
@@ -215,6 +280,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       refreshWorkspaceProjects();
     })
   );
+
+  // Terminal state listeners to update sidebar terminal name in real time
+  const triggerTerminalRefresh = () => {
+    if (sidebarProvider) {
+      const config = getExtensionConfig();
+      sidebarProvider.update(detectedProjectsCache, config);
+    }
+  };
+
+  context.subscriptions.push(vscode.window.onDidChangeActiveTerminal(triggerTerminalRefresh));
+  context.subscriptions.push(vscode.window.onDidOpenTerminal(triggerTerminalRefresh));
+  context.subscriptions.push(vscode.window.onDidCloseTerminal(triggerTerminalRefresh));
 
   // File watcher for next.config.* and package.json to auto-detect Next.js additions
   try {
