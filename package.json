@@ -2,7 +2,7 @@
   "name": "next-clean-restart",
   "displayName": "Next.js Clean Restart",
   "description": "One-click button and sidebar tab to stop Next.js, purge .next build cache, and restart a fresh dev server in the active terminal.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "publisher": "Eugee",
   "license": "MIT",
   "repository": {

@@ -6,6 +6,12 @@ It provides a Status Bar action button and a dedicated Sidebar tab to gracefully
 
 ---
 
+## Disclaimer
+
+This extension was **vibecoded** with AI. It is designed for fast, seamless Next.js developer workflows. If you run into any edge cases, bugs, or have feature ideas, feel free to open an issue or submit a pull request on GitHub!
+
+---
+
 ## Installation
 
 1. Download the latest `.vsix` package from [GitHub Releases](https://github.com/Eugee29/next-clean-restart/releases/latest).
@@ -16,7 +22,7 @@ It provides a Status Bar action button and a dedicated Sidebar tab to gracefully
 2. Go to the **Extensions** view (<kbd>Ctrl+Shift+X</kbd> / <kbd>Cmd+Shift+X</kbd>).
 3. Click the **`...`** (Views and More Actions) menu in the top-right corner of the Extensions panel.
 4. Select **Install from VSIX...**.
-5. Choose the downloaded `next-clean-restart-1.2.0.vsix` file.
+5. Choose the downloaded `next-clean-restart-1.3.0.vsix` file.
 
 ### Option B: Via Command Palette
 1. Open the Command Palette (<kbd>Ctrl+Shift+P</kbd> / <kbd>Cmd+Shift+P</kbd>).
@@ -25,14 +31,14 @@ It provides a Status Bar action button and a dedicated Sidebar tab to gracefully
 
 ### Option C: Via Terminal / Command Line
 ```bash
-code --install-extension next-clean-restart-1.2.0.vsix
+code --install-extension next-clean-restart-1.3.0.vsix
 ```
 
 > **For Cursor or VSCodium:**
 > ```bash
-> cursor --install-extension next-clean-restart-1.2.0.vsix
+> cursor --install-extension next-clean-restart-1.3.0.vsix
 > # or
-> codium --install-extension next-clean-restart-1.2.0.vsix
+> codium --install-extension next-clean-restart-1.3.0.vsix
 > ```
 
 ---
