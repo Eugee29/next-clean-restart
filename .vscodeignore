@@ -11,4 +11,5 @@ tsconfig.test.json
 .vscodeignore
 **/*.map
 scripts/**
+MEGA_MENU_REFACTOR_PROMPT.md
 *.vsix
