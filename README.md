@@ -61,14 +61,6 @@ code --install-extension next-clean-restart-1.3.3.vsix
 
 ## How It Works
 
-```mermaid
-flowchart LR
-    A[Click Status Bar / Shortcut / Sidebar] --> B[Auto-Detect Active Terminal & Stop Server]
-    B --> C[Purge .next Directory]
-    C --> D[Reuse Active Terminal]
-    D --> E[Start Dev Server & Notify]
-```
-
 1. **Detection**: Detects Next.js projects via `next.config.*` files or `next` dependencies in `package.json`.
 2. **Terminal Resolution**: Automatically targets the focused active terminal or dedicated dev terminal.
 3. **Stop**: Sends `Ctrl+C` to the target terminal and releases process handles.
