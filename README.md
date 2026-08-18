@@ -22,7 +22,7 @@ This extension was **vibecoded** with AI. It is designed for fast, seamless Next
 2. Go to the **Extensions** view (<kbd>Ctrl+Shift+X</kbd> / <kbd>Cmd+Shift+X</kbd>).
 3. Click the **`...`** (Views and More Actions) menu in the top-right corner of the Extensions panel.
 4. Select **Install from VSIX...**.
-5. Choose the downloaded `next-clean-restart-1.3.0.vsix` file.
+5. Choose the downloaded `next-clean-restart-1.3.1.vsix` file.
 
 ### Option B: Via Command Palette
 1. Open the Command Palette (<kbd>Ctrl+Shift+P</kbd> / <kbd>Cmd+Shift+P</kbd>).
@@ -31,14 +31,14 @@ This extension was **vibecoded** with AI. It is designed for fast, seamless Next
 
 ### Option C: Via Terminal / Command Line
 ```bash
-code --install-extension next-clean-restart-1.3.0.vsix
+code --install-extension next-clean-restart-1.3.1.vsix
 ```
 
 > **For Cursor or VSCodium:**
 > ```bash
-> cursor --install-extension next-clean-restart-1.3.0.vsix
+> cursor --install-extension next-clean-restart-1.3.1.vsix
 > # or
-> codium --install-extension next-clean-restart-1.3.0.vsix
+> codium --install-extension next-clean-restart-1.3.1.vsix
 > ```
 
 ---

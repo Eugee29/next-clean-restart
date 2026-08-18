@@ -292,35 +292,20 @@ export async function executeCleanRestart(
           );
           restartedServer = true;
 
-          // Step 5: Notification Toast
-          const viewTerminalBtn = 'View Terminal';
+          // Step 5: Notification Toast (auto-closes after 3 seconds)
           if (mode === 'cleanAndRestart') {
-            vscode.window
-              .showInformationMessage(
-                `Next.js cache cleared and dev server restarted for "${project.name}".`,
-                viewTerminalBtn
-              )
-              .then((item) => {
-                if (item === viewTerminalBtn) {
-                  terminal.show(false);
-                }
-              });
+            progress.report({ message: `Done! Cache cleared and dev server restarted for "${project.name}".` });
+            vscode.window.setStatusBarMessage(`$(check) Next.js Clean Restart completed for "${project.name}"`, 3000);
+            await delay(3000);
           } else if (mode === 'restartOnly') {
-            vscode.window
-              .showInformationMessage(
-                `Next.js dev server restarted for "${project.name}".`,
-                viewTerminalBtn
-              )
-              .then((item) => {
-                if (item === viewTerminalBtn) {
-                  terminal.show(false);
-                }
-              });
+            progress.report({ message: `Done! Dev server restarted for "${project.name}".` });
+            vscode.window.setStatusBarMessage(`$(check) Next.js dev server restarted for "${project.name}"`, 3000);
+            await delay(3000);
           }
         } else if (mode === 'cleanOnly') {
-          vscode.window.showInformationMessage(
-            `Next.js cache (.next) successfully deleted for "${project.name}".`
-          );
+          progress.report({ message: `Done! .next cache successfully deleted for "${project.name}".` });
+          vscode.window.setStatusBarMessage(`$(check) Next.js cache deleted for "${project.name}"`, 3000);
+          await delay(3000);
         }
 
         return {
