@@ -11,29 +11,61 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
- * Stops any existing Next.js terminal matching the terminalName.
+ * Finds any existing Next.js terminal matching the terminalName.
  */
-export async function stopDevServer(terminalName: string): Promise<boolean> {
+export function findDevTerminal(terminalName: string): vscode.Terminal | undefined {
+  return vscode.window.terminals.find((t) => t.name === terminalName);
+}
+
+/**
+ * Focuses the existing dev terminal if open.
+ */
+export function focusDevTerminal(terminalName: string): boolean {
+  const terminal = findDevTerminal(terminalName);
+  if (terminal) {
+    terminal.show(false);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Stops any existing Next.js terminal matching the terminalName.
+ * If reuseTerminal is true, it interrupts the process via SIGINT without destroying the terminal.
+ */
+export async function stopDevServer(
+  terminalName: string,
+  reuseTerminal = true
+): Promise<vscode.Terminal | undefined> {
   const matchingTerminals = vscode.window.terminals.filter((t) => t.name === terminalName);
 
   if (matchingTerminals.length === 0) {
-    return false;
+    return undefined;
   }
+
+  const primaryTerminal = matchingTerminals[0];
 
   for (const terminal of matchingTerminals) {
     try {
       // Send SIGINT / Ctrl+C
       terminal.sendText('\x03', false);
-      await delay(400);
-      terminal.dispose();
+      await delay(300);
+      // On Windows PowerShell/cmd, sending a newline or 'Y' responds to batch prompts if needed
+      terminal.sendText('y', true);
+      await delay(300);
+
+      if (!reuseTerminal) {
+        terminal.dispose();
+      }
     } catch {
-      // If dispose fails, ignore and continue
+      // If error occurs, continue
     }
   }
 
   // Grace period for OS to release file locks on Windows
   await delay(500);
-  return true;
+
+  return reuseTerminal ? primaryTerminal : undefined;
 }
 
 /**
@@ -92,25 +124,39 @@ export async function deleteNextCache(
 }
 
 /**
- * Starts a new Next.js development server in an integrated terminal.
+ * Starts or restarts a Next.js development server in an integrated terminal.
+ * Reuses the existing terminal if available and reuseTerminal is true.
  */
 export async function startDevServer(
   project: NextProjectInfo,
   terminalName: string,
   devCommand: string,
-  focusTerminal = false
+  focusTerminal = false,
+  reuseTerminal = true
 ): Promise<vscode.Terminal> {
-  // Create a new dedicated terminal in the project directory
-  const terminal = vscode.window.createTerminal({
-    name: terminalName,
-    cwd: project.uri.fsPath,
-    message: `Starting Next.js dev server with: ${devCommand}`,
-  });
+  let terminal: vscode.Terminal | undefined;
 
-  terminal.show(!focusTerminal);
-  // Give terminal a brief moment to initialize before sending command
-  await delay(250);
-  terminal.sendText(devCommand, true);
+  if (reuseTerminal) {
+    terminal = findDevTerminal(terminalName);
+  }
+
+  if (terminal) {
+    // Reuse the existing running terminal
+    terminal.show(!focusTerminal);
+    await delay(250);
+    terminal.sendText(devCommand, true);
+  } else {
+    // Create a new dedicated terminal in the project directory
+    terminal = vscode.window.createTerminal({
+      name: terminalName,
+      cwd: project.uri.fsPath,
+      message: `Next.js Dev Server: ${devCommand}`,
+    });
+
+    terminal.show(!focusTerminal);
+    await delay(300);
+    terminal.sendText(devCommand, true);
+  }
 
   return terminal;
 }
@@ -165,7 +211,7 @@ export async function executeCleanRestart(
         // Step 1 & 2: Stop running server
         if (mode === 'cleanAndRestart' || mode === 'cleanOnly' || mode === 'restartOnly') {
           progress.report({ message: 'Stopping running Next.js dev server...' });
-          await stopDevServer(config.terminalName);
+          await stopDevServer(config.terminalName, config.reuseTerminal);
         }
 
         // Step 3: Delete cache directory
@@ -181,12 +227,13 @@ export async function executeCleanRestart(
 
         // Step 4: Restart dev server
         if (mode === 'cleanAndRestart' || mode === 'restartOnly') {
-          progress.report({ message: `Starting fresh dev server (${devCommand})...` });
+          progress.report({ message: `Starting dev server (${devCommand})...` });
           const terminal = await startDevServer(
             project,
             config.terminalName,
             devCommand,
-            config.focusTerminalOnStart
+            config.focusTerminalOnStart,
+            config.reuseTerminal
           );
           restartedServer = true;
 

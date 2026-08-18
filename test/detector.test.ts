@@ -25,7 +25,7 @@ import {
 import { NextProjectInfo } from '../src/types';
 
 async function runTests() {
-  console.log('🧪 Starting Next.js Clean Restart Unit Tests...\n');
+  console.log('Starting Next.js Clean Restart Unit Tests...\n');
   const tempBaseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'next-clean-restart-test-'));
 
   try {
@@ -60,7 +60,7 @@ async function runTests() {
       resolveDevCommand(mockProject('npm', 'dev'), 'pnpm run dev --turbo'),
       'pnpm run dev --turbo'
     );
-    console.log('  ✔ resolveDevCommand passed for npm, pnpm, yarn, bun and custom scripts');
+    console.log('  [PASS] resolveDevCommand passed for npm, pnpm, yarn, bun and custom scripts');
 
     // ----------------------------------------------------
     // Test 2: detectPackageManager lockfile tests
@@ -72,28 +72,28 @@ async function runTests() {
     fs.writeFileSync(path.join(pnpmDir, 'pnpm-lock.yaml'), '');
     const pnpmDetected = await detectPackageManager(mockVscode.Uri.file(pnpmDir) as any);
     assert.strictEqual(pnpmDetected, 'pnpm');
-    console.log('  ✔ Detected pnpm from pnpm-lock.yaml');
+    console.log('  [PASS] Detected pnpm from pnpm-lock.yaml');
 
     const yarnDir = path.join(tempBaseDir, 'yarn-app');
     fs.mkdirSync(yarnDir, { recursive: true });
     fs.writeFileSync(path.join(yarnDir, 'yarn.lock'), '');
     const yarnDetected = await detectPackageManager(mockVscode.Uri.file(yarnDir) as any);
     assert.strictEqual(yarnDetected, 'yarn');
-    console.log('  ✔ Detected yarn from yarn.lock');
+    console.log('  [PASS] Detected yarn from yarn.lock');
 
     const bunDir = path.join(tempBaseDir, 'bun-app');
     fs.mkdirSync(bunDir, { recursive: true });
     fs.writeFileSync(path.join(bunDir, 'bun.lockb'), '');
     const bunDetected = await detectPackageManager(mockVscode.Uri.file(bunDir) as any);
     assert.strictEqual(bunDetected, 'bun');
-    console.log('  ✔ Detected bun from bun.lockb');
+    console.log('  [PASS] Detected bun from bun.lockb');
 
     const npmDir = path.join(tempBaseDir, 'npm-app');
     fs.mkdirSync(npmDir, { recursive: true });
     fs.writeFileSync(path.join(npmDir, 'package-lock.json'), '{}');
     const npmDetected = await detectPackageManager(mockVscode.Uri.file(npmDir) as any);
     assert.strictEqual(npmDetected, 'npm');
-    console.log('  ✔ Detected npm from package-lock.json');
+    console.log('  [PASS] Detected npm from package-lock.json');
 
     // ----------------------------------------------------
     // Test 3: Monorepo nested lockfile traversal
@@ -105,7 +105,7 @@ async function runTests() {
     fs.writeFileSync(path.join(monorepoRoot, 'pnpm-lock.yaml'), '');
     const monorepoDetected = await detectPackageManager(mockVscode.Uri.file(monorepoApp) as any);
     assert.strictEqual(monorepoDetected, 'pnpm');
-    console.log('  ✔ Correctly walked up directory tree to detect pnpm in monorepo root');
+    console.log('  [PASS] Correctly walked up directory tree to detect pnpm in monorepo root');
 
     // ----------------------------------------------------
     // Test 4: isNextProjectDirectory project identification
@@ -127,7 +127,7 @@ async function runTests() {
     assert.ok(nextAppInfo !== null, 'Should detect Next.js project');
     assert.strictEqual(nextAppInfo?.name, 'my-next-app');
     assert.strictEqual(nextAppInfo?.devScriptName, 'dev');
-    console.log('  ✔ Detected Next.js app via package.json dependencies');
+    console.log('  [PASS] Detected Next.js app via package.json dependencies');
 
     // 4b. Next.js app with next.config.ts
     const configAppDir = path.join(tempBaseDir, 'config-app');
@@ -135,7 +135,7 @@ async function runTests() {
     fs.writeFileSync(path.join(configAppDir, 'next.config.ts'), 'export default {};');
     const configAppInfo = await isNextProjectDirectory(mockVscode.Uri.file(configAppDir) as any);
     assert.ok(configAppInfo !== null, 'Should detect Next.js project via next.config.ts');
-    console.log('  ✔ Detected Next.js app via next.config.ts');
+    console.log('  [PASS] Detected Next.js app via next.config.ts');
 
     // 4c. Non-Next.js project
     const nonNextDir = path.join(tempBaseDir, 'regular-node-app');
@@ -149,9 +149,9 @@ async function runTests() {
     );
     const nonNextInfo = await isNextProjectDirectory(mockVscode.Uri.file(nonNextDir) as any);
     assert.strictEqual(nonNextInfo, null, 'Should not detect non-Next.js project');
-    console.log('  ✔ Non-Next.js projects are properly ignored');
+    console.log('  [PASS] Non-Next.js projects are properly ignored');
 
-    console.log('\n✨ All unit tests completed successfully!');
+    console.log('\nAll unit tests completed successfully!');
   } finally {
     // Cleanup temporary files
     try {
@@ -163,6 +163,6 @@ async function runTests() {
 }
 
 runTests().catch((err) => {
-  console.error('❌ Test failure:', err);
+  console.error('Test failure:', err);
   process.exit(1);
 });

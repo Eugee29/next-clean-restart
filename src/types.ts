@@ -22,6 +22,7 @@ export interface ExtensionConfig {
   retryAttempts: number;
   retryDelayMs: number;
   focusTerminalOnStart: boolean;
+  reuseTerminal: boolean;
 }
 
 export type ExecutionMode = 'cleanAndRestart' | 'cleanOnly' | 'restartOnly';

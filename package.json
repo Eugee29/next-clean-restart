@@ -1,8 +1,8 @@
 {
   "name": "next-clean-restart",
   "displayName": "Next.js Clean Restart",
-  "description": "One-click status bar button to stop Next.js, purge .next build cache, and restart a fresh dev server.",
-  "version": "1.0.0",
+  "description": "One-click button and sidebar tab to stop Next.js, purge .next build cache, and restart a fresh dev server in the same terminal.",
+  "version": "1.1.0",
   "publisher": "Eugee29",
   "license": "MIT",
   "repository": {
@@ -13,6 +13,7 @@
     "url": "https://github.com/Eugee29/next-clean-restart/issues"
   },
   "homepage": "https://github.com/Eugee29/next-clean-restart#readme",
+  "icon": "icon.png",
   "keywords": [
     "next.js",
     "nextjs",
@@ -37,11 +38,29 @@
     "workspaceContains:**/next.config.ts",
     "workspaceContains:**/next.config.cjs",
     "workspaceContains:**/package.json",
+    "onView:nextCleanRestart.mainView",
     "onCommand:nextCleanRestart.cleanRestart",
     "onCommand:nextCleanRestart.cleanOnly",
     "onCommand:nextCleanRestart.restartOnly"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nextCleanRestart",
+          "title": "Next.js Clean Restart",
+          "icon": "resources/activitybar.svg"
+        }
+      ]
+    },
+    "views": {
+      "nextCleanRestart": [
+        {
+          "id": "nextCleanRestart.mainView",
+          "name": "Next.js Clean Restart"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "nextCleanRestart.cleanRestart",
@@ -58,6 +77,18 @@
       {
         "command": "nextCleanRestart.restartOnly",
         "title": "Next.js: Restart Dev Server Only",
+        "category": "Next.js",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "nextCleanRestart.focusTerminal",
+        "title": "Next.js: Focus Dev Terminal",
+        "category": "Next.js",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "nextCleanRestart.refreshSidebar",
+        "title": "Refresh Next.js Projects & Settings",
         "category": "Next.js",
         "icon": "$(refresh)"
       }
@@ -80,6 +111,21 @@
         },
         {
           "command": "nextCleanRestart.restartOnly"
+        },
+        {
+          "command": "nextCleanRestart.focusTerminal"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "nextCleanRestart.cleanRestart",
+          "when": "view == nextCleanRestart.mainView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "nextCleanRestart.refreshSidebar",
+          "when": "view == nextCleanRestart.mainView",
+          "group": "navigation@2"
         }
       ],
       "editor/title/run": [
@@ -93,6 +139,11 @@
     "configuration": {
       "title": "Next.js Clean Restart",
       "properties": {
+        "nextCleanRestart.reuseTerminal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reuse the existing running integrated terminal instead of creating a new terminal tab on each restart."
+        },
         "nextCleanRestart.devCommand": {
           "type": "string",
           "default": "auto",
