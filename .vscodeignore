@@ -10,4 +10,5 @@ tsconfig.test.json
 .gitignore
 .vscodeignore
 **/*.map
+scripts/**
 *.vsix

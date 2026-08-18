@@ -216,8 +216,11 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "@types/pngjs": "^6.0.5",
     "@types/vscode": "^1.85.0",
     "esbuild": "^0.20.1",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0",
     "typescript": "^5.3.3"
   }
 }
