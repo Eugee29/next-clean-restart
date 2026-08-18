@@ -1,0 +1,145 @@
+{
+  "name": "next-clean-restart",
+  "displayName": "Next.js Clean Restart",
+  "description": "One-click status bar button to stop Next.js, purge .next build cache, and restart a fresh dev server.",
+  "version": "1.0.0",
+  "publisher": "next-tools",
+  "keywords": [
+    "next.js",
+    "nextjs",
+    "next",
+    "clean",
+    "cache",
+    "restart",
+    "dev server",
+    "turbopack"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/next.config.js",
+    "workspaceContains:**/next.config.mjs",
+    "workspaceContains:**/next.config.ts",
+    "workspaceContains:**/next.config.cjs",
+    "workspaceContains:**/package.json",
+    "onCommand:nextCleanRestart.cleanRestart",
+    "onCommand:nextCleanRestart.cleanOnly",
+    "onCommand:nextCleanRestart.restartOnly"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "nextCleanRestart.cleanRestart",
+        "title": "Next.js: Clean & Restart Dev Server",
+        "category": "Next.js",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "nextCleanRestart.cleanOnly",
+        "title": "Next.js: Clean .next Cache Only",
+        "category": "Next.js",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "nextCleanRestart.restartOnly",
+        "title": "Next.js: Restart Dev Server Only",
+        "category": "Next.js",
+        "icon": "$(refresh)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "nextCleanRestart.cleanRestart",
+        "key": "ctrl+alt+n",
+        "mac": "cmd+alt+n",
+        "when": "nextCleanRestart:isNextProject"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "nextCleanRestart.cleanRestart"
+        },
+        {
+          "command": "nextCleanRestart.cleanOnly"
+        },
+        {
+          "command": "nextCleanRestart.restartOnly"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "nextCleanRestart.cleanRestart",
+          "group": "navigation",
+          "when": "nextCleanRestart:isNextProject"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Next.js Clean Restart",
+      "properties": {
+        "nextCleanRestart.devCommand": {
+          "type": "string",
+          "default": "auto",
+          "description": "Custom command to start Next.js development server. Set to 'auto' to auto-detect based on package manager (pnpm, yarn, bun, or npm)."
+        },
+        "nextCleanRestart.showConfirmation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Prompt for confirmation before clearing the .next cache and restarting."
+        },
+        "nextCleanRestart.terminalName": {
+          "type": "string",
+          "default": "Next.js Dev Server",
+          "description": "Name of the dedicated integrated terminal used for running the Next.js dev server."
+        },
+        "nextCleanRestart.showStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to display the Next.js Clean Restart button on the status bar."
+        },
+        "nextCleanRestart.cacheDirectory": {
+          "type": "string",
+          "default": ".next",
+          "description": "Relative path to the Next.js build cache directory to remove."
+        },
+        "nextCleanRestart.retryAttempts": {
+          "type": "number",
+          "default": 5,
+          "description": "Number of retry attempts when encountering file lock errors during cache deletion (especially on Windows)."
+        },
+        "nextCleanRestart.retryDelayMs": {
+          "type": "number",
+          "default": 300,
+          "description": "Delay in milliseconds between cache deletion retry attempts."
+        },
+        "nextCleanRestart.focusTerminalOnStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to bring the terminal into focus when restarting the dev server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "bundle": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "package": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "test": "node ./dist-test/test/detector.test.js",
+    "test:compile": "tsc -p ./tsconfig.test.json && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.1",
+    "typescript": "^5.3.3"
+  }
+}
